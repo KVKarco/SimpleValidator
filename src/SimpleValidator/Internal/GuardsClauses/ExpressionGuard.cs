@@ -1,12 +1,16 @@
-﻿namespace SimpleValidator.Internal.GuardsClauses;
-
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using SimpleValidator.Internal.ExpressionHelpers;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
+namespace SimpleValidator.Internal.GuardsClauses;
+
 internal static class ExpressionGuard
 {
+    /// <summary>
+    /// Checks if selector expression is valid contains nested selections of properties.
+    /// </summary>
+    /// <exception cref="ValidatorArgumentException">When expression is not valid.</exception>
     internal static string InvalidPropertySelector<TEntity, TProperty>(
         this IGuardClause guardClause,
         Expression<Func<TEntity, TProperty>>? propertySelector)
@@ -29,16 +33,20 @@ internal static class ExpressionGuard
         return memberExpression.Member.Name;
     }
 
+    /// <summary>
+    /// Checks if predicate expression contains nullable members.
+    /// </summary>
+    /// <exception cref="ValidatorArgumentException">When expression contains nullable members.</exception>
     internal static void IncorrectPredicate(
         this IGuardClause guardClause,
         [NotNull] Expression predicateExpression)
     {
-        NullabilityMembersChecker predicateValidator = new NullabilityMembersChecker();
+        NullabilityMembersChecker predicateValidator = new();
         predicateValidator.Visit(predicateExpression);
 
         if (!predicateValidator.IsSafeFromNullableMembers)
         {
-            throw new ValidatorArgumentException($"Predicate {predicateExpression.ToString()} is not valid, nullable members detected.");
+            throw new ValidatorArgumentException($"Predicate {predicateExpression} is not valid, nullable members detected.");
         }
     }
 }

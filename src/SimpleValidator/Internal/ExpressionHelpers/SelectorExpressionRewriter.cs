@@ -1,15 +1,18 @@
-﻿namespace SimpleValidator.Internal.ExpressionHelpers;
-
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using System.Linq.Expressions;
 
+namespace SimpleValidator.Internal.ExpressionHelpers;
+
+/// <summary>
+/// Rewrites selector expressions parameters so predicates can be compared for equality.
+/// </summary>
 internal sealed class SelectorExpressionRewriter : ExpressionVisitor
 {
-    private ParameterExpression? newParam;
+    private ParameterExpression? _newParam;
 
     public SelectorExpressionRewriter()
     {
-        this.newParam = null;
+        _newParam = null;
     }
 
     protected override Expression VisitParameter(ParameterExpression node)
@@ -17,8 +20,8 @@ internal sealed class SelectorExpressionRewriter : ExpressionVisitor
         Guard.Against.Null(node);
         Guard.Against.NullOrWhiteSpace(node.Name);
 
-        this.newParam ??= Expression.Parameter(node.Type, "prop");
+        _newParam ??= Expression.Parameter(node.Type, "prop");
 
-        return this.newParam;
+        return _newParam;
     }
 }

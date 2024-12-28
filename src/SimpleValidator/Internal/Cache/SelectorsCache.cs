@@ -1,19 +1,22 @@
-﻿namespace SimpleValidator.Internal.Cache;
-
-using SimpleValidator.Internal.ExpressionHelpers;
+﻿using SimpleValidator.Internal.ExpressionHelpers;
 using SimpleValidator.Internal.Keys;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
+namespace SimpleValidator.Internal.Cache;
+
+/// <summary>
+/// Holds compiled selector delegates from rewritten expressions.
+/// </summary>
 internal static class SelectorsCache
 {
-    private static readonly ConcurrentDictionary<SelectorKey, Delegate> Cache = new ConcurrentDictionary<SelectorKey, Delegate>();
+    private static readonly ConcurrentDictionary<SelectorKey, Delegate> _cache = [];
 
     internal static Func<TEntity, TProperty> GetOrAdd<TEntity, TProperty>(
         in SelectorKey selectorKey,
         Expression<Func<TEntity, TProperty>> selectorExpression)
     {
-        if (Cache.TryGetValue(selectorKey, out Delegate? func))
+        if (_cache.TryGetValue(selectorKey, out Delegate? func))
         {
             return (Func<TEntity, TProperty>)func;
         }
@@ -22,7 +25,7 @@ internal static class SelectorsCache
             .VisitAndConvert(selectorExpression, null)
             .Compile();
 
-        Cache.TryAdd(selectorKey, rewriteFunc);
+        _cache.TryAdd(selectorKey, rewriteFunc);
 
         return rewriteFunc;
     }
@@ -31,7 +34,7 @@ internal static class SelectorsCache
         in SelectorKey selectorKey,
         string path)
     {
-        if (Cache.TryGetValue(selectorKey, out Delegate? func))
+        if (_cache.TryGetValue(selectorKey, out Delegate? func))
         {
             return (Func<TEntity, TProperty>)func;
         }
@@ -47,7 +50,7 @@ internal static class SelectorsCache
 
         Func<TEntity, TProperty> rewriteFunc = Expression.Lambda<Func<TEntity, TProperty>>(body, paramExpression).Compile();
 
-        Cache.TryAdd(selectorKey, rewriteFunc);
+        _cache.TryAdd(selectorKey, rewriteFunc);
 
         return rewriteFunc;
     }

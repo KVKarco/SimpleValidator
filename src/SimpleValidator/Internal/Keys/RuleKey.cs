@@ -1,12 +1,15 @@
-﻿namespace SimpleValidator.Internal.Keys;
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
+namespace SimpleValidator.Internal.Keys;
 
+/// <summary>
+/// For comparing rules so duplicates can be detected.
+/// </summary>
 internal readonly record struct RuleKey
 {
     private RuleKey(string ruleName)
     {
-        this.RuleDefinition = ruleName;
+        RuleDefinition = ruleName;
     }
 
     internal readonly string RuleDefinition { get; }

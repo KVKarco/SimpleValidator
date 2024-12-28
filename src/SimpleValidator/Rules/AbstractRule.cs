@@ -1,8 +1,7 @@
-﻿namespace SimpleValidator.Rules;
-
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using SimpleValidator.Internal.GuardsClauses;
-using SimpleValidator.Rules.Internal;
+
+namespace SimpleValidator.Rules;
 
 /// <summary>
 /// Abstract class for creating custom rules.
@@ -15,7 +14,7 @@ public abstract class AbstractRule<TEntity, TProperty> : IValidationRule<TEntity
     /// <param name="ruleName">unique rule name.</param>
     protected AbstractRule(string ruleName)
     {
-        this.RuleName = Guard.Against.InternalNullOrWhiteSpace(ruleName);
+        RuleName = Guard.Against.InternalNullOrWhiteSpace(ruleName);
     }
 
     /// <summary>
@@ -24,10 +23,10 @@ public abstract class AbstractRule<TEntity, TProperty> : IValidationRule<TEntity
     public string RuleName { get; }
 
     bool IValidationRule<TEntity, TProperty>.FailsWhen(TEntity entityValue, TProperty propertyValue)
-        => this.FailsWhen(entityValue, propertyValue);
+        => FailsWhen(entityValue, propertyValue);
 
     string IValidationRule<TEntity, TProperty>.GetDefaultMsgTemplate(string propName, TEntity entityValue, TProperty propertyValue)
-        => this.GetDefaultMsgTemplate(propName, entityValue, propertyValue);
+        => GetDefaultMsgTemplate(propName, entityValue, propertyValue);
 
     /// <summary>
     /// Method that determines when the rule failed.

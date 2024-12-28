@@ -4,9 +4,9 @@ internal readonly record struct SelectorKey
 {
     public SelectorKey(Type inputType, Type propertyType, string displayName)
     {
-        this.InputType = inputType;
-        this.ReturnType = propertyType;
-        this.PropertyPath = displayName;
+        InputType = inputType;
+        ReturnType = propertyType;
+        PropertyPath = displayName;
     }
 
     internal readonly Type InputType { get; }

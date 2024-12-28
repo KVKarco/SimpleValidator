@@ -1,26 +1,26 @@
-﻿namespace SimpleValidator.Rules.Internal;
+﻿using SimpleValidator.Internal;
 
-using SimpleValidator.Internal;
+namespace SimpleValidator.Rules;
 
 /// <summary>
 /// Validation rule from predicate.
 /// </summary>
 internal sealed class PredicateRule<TEntity, TProperty> : IValidationRule<TEntity, TProperty>
 {
-    private readonly Predicate<TProperty> predicate;
+    private readonly Predicate<TProperty> _predicate;
 
     public PredicateRule(Predicate<TProperty> predicate, string ruleName)
     {
-        this.predicate = predicate;
-        this.RuleName = ruleName;
+        _predicate = predicate;
+        RuleName = ruleName;
     }
 
     public string RuleName { get; }
 
     /// <inheritdoc />
-    public bool FailsWhen(TEntity entityValue, TProperty propertyValue) => this.predicate(propertyValue);
+    public bool FailsWhen(TEntity entityValue, TProperty propertyValue) => _predicate(propertyValue);
 
     /// <inheritdoc />
     public string GetDefaultMsgTemplate(string propName, TEntity entityValue, TProperty propertyValue)
-        => $"{DefaultErrorMessages.GenericErrorMsg} {propName}.";
+        => $"{DefaultErrorMessages._genericErrorMsg} {propName}.";
 }

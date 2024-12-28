@@ -1,11 +1,21 @@
-﻿namespace SimpleValidator.Internal.GuardsClauses;
-
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
+namespace SimpleValidator.Internal.GuardsClauses;
+
 internal static class InternalGuards
 {
+    private static Func<ValidatorArgumentException> Null(string parameterName)
+    {
+        return () => new ValidatorArgumentException($"Required input {parameterName} was null.");
+    }
+
+    private static Func<ValidatorArgumentException> NullOrEmptyExceptionCreator(string parameterName)
+    {
+        return () => new ValidatorArgumentException($"Required input {parameterName} was null or empty.");
+    }
+
     internal static Type UnsupportedType(this IGuardClause guardClause, [NotNull] Type type)
     {
         if (type.AssemblyQualifiedName == null)
@@ -30,15 +40,5 @@ internal static class InternalGuards
         [CallerArgumentExpression(nameof(input))] string? parameterName = null)
     {
         return Guard.Against.Null(input, parameterName, null, Null(parameterName!));
-    }
-
-    private static Func<ValidatorArgumentException> Null(string parameterName)
-    {
-        return () => new ValidatorArgumentException($"Required input {parameterName} was null.");
-    }
-
-    private static Func<ValidatorArgumentException> NullOrEmptyExceptionCreator(string parameterName)
-    {
-        return () => new ValidatorArgumentException($"Required input {parameterName} was null or empty.");
     }
 }

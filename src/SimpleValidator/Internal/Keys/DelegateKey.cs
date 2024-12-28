@@ -1,14 +1,17 @@
-﻿namespace SimpleValidator.Internal.Keys;
+﻿using System.Linq.Expressions;
 
-using System.Linq.Expressions;
+namespace SimpleValidator.Internal.Keys;
 
+/// <summary>
+/// Used to get correct delegate from cache.
+/// </summary>
 internal readonly record struct DelegateKey
 {
     private DelegateKey(Type propertyType, string definition, Type? fromProperty = null)
     {
-        this.ForProperty = propertyType;
-        this.MethodDefinition = definition;
-        this.FromProperty = fromProperty;
+        ForProperty = propertyType;
+        MethodDefinition = definition;
+        FromProperty = fromProperty;
     }
 
     public readonly Type? FromProperty { get; }
@@ -25,10 +28,5 @@ internal readonly record struct DelegateKey
     public static DelegateKey FromExpression<TEntity, TProperty>(Expression<Func<TEntity, TProperty, bool>> expression)
     {
         return new DelegateKey(typeof(TProperty), expression.ToString(), typeof(TEntity));
-    }
-
-    public static DelegateKey FromExpression<TProperty>(Expression<Func<string, TProperty, string>> expression)
-    {
-        return new DelegateKey(typeof(TProperty), expression.ToString());
     }
 }

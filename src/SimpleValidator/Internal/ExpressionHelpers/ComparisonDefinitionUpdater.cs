@@ -1,8 +1,12 @@
-﻿namespace SimpleValidator.Internal.ExpressionHelpers;
-
-using SimpleValidator.Internal.Keys;
+﻿using SimpleValidator.Internal.Keys;
 using System.Text;
 
+namespace SimpleValidator.Internal.ExpressionHelpers;
+
+/// <summary>
+/// Updates predicate definitions to new form when rule is copied to another property validator.
+/// Adds the missing members to the rule definition if any.
+/// </summary>
 internal static class ComparisonDefinitionUpdater
 {
     public static RuleKey UpdateDefinition(string oldName, string displayName)
@@ -12,7 +16,7 @@ internal static class ComparisonDefinitionUpdater
 
         if (res.Count > 0)
         {
-            StringBuilder sb = new StringBuilder(oldName, oldName.Length + (res.Count * path.Length));
+            StringBuilder sb = new(oldName, oldName.Length + (res.Count * path.Length));
             int occurred = 0;
 
             foreach (var item in res)
@@ -42,9 +46,7 @@ internal static class ComparisonDefinitionUpdater
         {
             positions.Add(index + offset + searchText.Length);
             offset += index + searchText.Length;
-#pragma warning disable SA1009 // Closing parenthesis should be spaced correctly
             spanText = spanText[(index + searchText.Length)..];
-#pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
             index = spanText.IndexOf(spanSearch, StringComparison.OrdinalIgnoreCase);
         }
 

@@ -1,4 +1,4 @@
-﻿namespace SimpleValidator.Rules.Internal;
+﻿namespace SimpleValidator.Rules;
 
 /// <summary>
 /// Represent rule for validating certain property.
