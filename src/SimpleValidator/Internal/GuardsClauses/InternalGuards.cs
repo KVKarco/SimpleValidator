@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using SimpleValidator.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using SimpleValidator.Exceptions;
+using System.Collections.ObjectModel;
 
 namespace SimpleValidator.Internal;
 

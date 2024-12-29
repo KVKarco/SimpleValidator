@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleValidator.Tests", "src\SimpleValidator.Tests\SimpleValidator.Tests.csproj", "{C7953437-ABF7-4E91-BE45-7B6A1B3E368E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,11 +27,16 @@ Global
 		{F2571893-769F-48CF-A520-AEB71E904084}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2571893-769F-48CF-A520-AEB71E904084}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2571893-769F-48CF-A520-AEB71E904084}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7953437-ABF7-4E91-BE45-7B6A1B3E368E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7953437-ABF7-4E91-BE45-7B6A1B3E368E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7953437-ABF7-4E91-BE45-7B6A1B3E368E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7953437-ABF7-4E91-BE45-7B6A1B3E368E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F2571893-769F-48CF-A520-AEB71E904084} = {3416C44C-F193-4E24-AF6A-819DBD764FC8}
+		{C7953437-ABF7-4E91-BE45-7B6A1B3E368E} = {3416C44C-F193-4E24-AF6A-819DBD764FC8}
 	EndGlobalSection
 EndGlobal

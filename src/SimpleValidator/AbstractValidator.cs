@@ -1,10 +1,10 @@
 ﻿using Ardalis.GuardClauses;
-using SimpleValidator.Builders;
-using SimpleValidator.Builders.Internal;
+using SimpleValidator.Exceptions;
 using SimpleValidator.Internal;
+using SimpleValidator.Internal.Builders;
 using SimpleValidator.Internal.Cache;
 using SimpleValidator.Internal.GuardsClauses;
-using SimpleValidator.Validators;
+using SimpleValidator.Internal.Validators;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
@@ -14,7 +14,7 @@ namespace SimpleValidator;
 /// Abstract class for creating validators for given type.
 /// </summary>
 /// <typeparam name="TEntity">Type that been validated.</typeparam>
-public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TEntity>
+public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TEntity>, IValidator<TEntity>
 {
     private readonly AvailablePropsForValidating _allowedProps;
     private readonly Dictionary<string, IPropertyValidator<TEntity, TEntity>> _propertyValidators;
@@ -47,6 +47,7 @@ public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TE
     /// </summary>
     /// <typeparam name="TProperty">Type of property that's been validated.</typeparam>
     /// <param name="selectorExpression">Expression for selecting property for validation.</param>
+    /// <exception cref="InvalidSelectorException">When selectorExpression is null or nested property is selected.</exception>
     protected IPropertyRulesBuilder<TEntity, TProperty> ValidationsFor<TProperty>(
         Expression<Func<TEntity, TProperty>> selectorExpression)
         where TProperty : struct
@@ -69,6 +70,7 @@ public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TE
     /// <param name="selectorExpression">Expression for selecting property for validation.</param>
     /// <param name="nullOption">Nullability option</param>
     /// <seealso cref="NullOptions"/>
+    /// <exception cref="InvalidSelectorException">When selectorExpression is null or nested property is selected.</exception>
     protected IPropertyRulesBuilder<TEntity, TProperty> ValidationsFor<TProperty>(
         Expression<Func<TEntity, TProperty?>> selectorExpression, NullOptions nullOption = NullOptions.Default)
         where TProperty : struct
@@ -91,6 +93,7 @@ public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TE
     /// <param name="selectorExpression">Expression for selecting property for validation.</param>
     /// <param name="nullOption">Nullability option</param>
     /// <seealso cref="NullOptions"/>
+    /// <exception cref="InvalidSelectorException">When selectorExpression is null or nested property is selected.</exception>
     protected IPropertyRulesBuilder<TEntity, TProperty> ValidationsFor<TProperty>(
         Expression<Func<TEntity, TProperty?>> selectorExpression, NullOptions nullOption = NullOptions.Default)
         where TProperty : class
@@ -104,5 +107,32 @@ public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TE
         }
 
         return BuilderFactory.ForProperty(this, selectorExpression, info, nullOption);
+    }
+
+    /// <summary>
+    /// Validates TEntity value.
+    /// </summary>
+    /// <param name="entity">value of the type that is validated.</param>
+    /// <returns>ValidationResult</returns>
+    public ValidationResult Validate(TEntity entity)
+    {
+        ValidationResult result = new();
+
+        if (entity is null)
+        {
+            result.AddNullWaring($"entity of type {typeof(TEntity)} was null validation stops.");
+            return result;
+        }
+
+        foreach (var propName in _allowedProps.Select(x => x.Name))
+        {
+            if (_propertyValidators.TryGetValue(propName, out var validator))
+            {
+                ValidationRunContext<TEntity, TEntity> context = new(entity, entity, result, propName);
+                validator.Validate(context);
+            }
+        }
+
+        return result;
     }
 }

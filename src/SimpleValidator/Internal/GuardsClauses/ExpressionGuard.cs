@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using SimpleValidator.Exceptions;
 using SimpleValidator.Internal.ExpressionHelpers;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -10,24 +11,24 @@ internal static class ExpressionGuard
     /// <summary>
     /// Checks if selector expression is valid contains nested selections of properties.
     /// </summary>
-    /// <exception cref="ValidatorArgumentException">When expression is not valid.</exception>
+    /// <exception cref="InvalidSelectorException">When expression is not valid.</exception>
     internal static string InvalidPropertySelector<TEntity, TProperty>(
         this IGuardClause guardClause,
         Expression<Func<TEntity, TProperty>>? propertySelector)
     {
         if (propertySelector is null)
         {
-            throw new ValidatorArgumentException("Null propertySelector was supplied.");
+            throw new InvalidSelectorException("Null propertySelector was supplied.");
         }
 
         if (propertySelector.Body is not MemberExpression memberExpression)
         {
-            throw new ValidatorArgumentException("propertySelector is not valid MemberExpression.");
+            throw new InvalidSelectorException("propertySelector is not valid MemberExpression.");
         }
 
         if (memberExpression.Expression is not ParameterExpression)
         {
-            throw new ValidatorArgumentException("Nested selectors are not supported.");
+            throw new InvalidSelectorException("Nested selectors are not supported.");
         }
 
         return memberExpression.Member.Name;
@@ -36,7 +37,7 @@ internal static class ExpressionGuard
     /// <summary>
     /// Checks if predicate expression contains nullable members.
     /// </summary>
-    /// <exception cref="ValidatorArgumentException">When expression contains nullable members.</exception>
+    /// <exception cref="NullableMemberException">When expression contains nullable members.</exception>
     internal static void IncorrectPredicate(
         this IGuardClause guardClause,
         [NotNull] Expression predicateExpression)
@@ -46,7 +47,7 @@ internal static class ExpressionGuard
 
         if (!predicateValidator.IsSafeFromNullableMembers)
         {
-            throw new ValidatorArgumentException($"Predicate {predicateExpression} is not valid, nullable members detected.");
+            throw new NullableMemberException($"Predicate {predicateExpression} is not valid, nullable members detected.");
         }
     }
 }
