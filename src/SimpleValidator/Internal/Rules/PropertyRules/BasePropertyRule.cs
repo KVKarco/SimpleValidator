@@ -5,9 +5,8 @@ namespace SimpleValidator.Internal.Rules.PropertyRules;
 
 internal abstract class BasePropertyRule
 {
-    public BasePropertyRule(RuleType type, in RuleKey key, bool isShortCircuit)
+    public BasePropertyRule(in RuleKey key, bool isShortCircuit)
     {
-        Type = type;
         Key = key;
         IsShortCircuit = isShortCircuit;
     }
@@ -15,8 +14,6 @@ internal abstract class BasePropertyRule
     public RuleKey Key { get; }
 
     public bool IsShortCircuit { get; }
-
-    protected RuleType Type { get; }
 
     protected string? ErrorMsg { get; set; }
 
@@ -27,14 +24,16 @@ internal abstract class BasePropertyRule<TEntity, TProperty> :
     BasePropertyRule,
     IPropertyRule<TEntity, TProperty>
 {
-    protected BasePropertyRule(RuleType type, in RuleKey key, bool isShortCircuit)
-        : base(type, key, isShortCircuit)
+    protected BasePropertyRule(in RuleKey key, bool isShortCircuit)
+        : base(key, isShortCircuit)
     {
     }
 
-    public abstract bool Failed(ValidationData<TEntity, TProperty> data, [NotNullWhen(true)] out string? errorMsg);
+    public abstract bool Failed(ValidationContext<TEntity, TProperty> context, [NotNullWhen(true)] out string? errorMsg);
 
-    public abstract void SetErrorMsgFactory(Func<ValidationData<TEntity, TProperty>, string> errorMsgFactory);
+    public abstract void SetErrorMsgFactory(Func<IValidationContext<TProperty>, string> errorMsgFactory);
 
-    public abstract IPropertyRule<TNewEntity, TProperty> Transform<TNewEntity>(string path);
+    public abstract void SetErrorMsgFactory(Func<IValidationContext<TEntity, TProperty>, string> errorMsgFactory);
+
+    public abstract IPropertyRule<TNewEntity, TProperty> Transform<TNewEntity>(string missingPath);
 }

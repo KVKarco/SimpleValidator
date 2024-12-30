@@ -11,9 +11,9 @@ internal static class RuleFactory
         Expression<Predicate<TProperty>> predicateExpression, bool isShortCircuit = false)
     {
         Predicate<TProperty> predicate = PredicateCache.GetOrAdd(predicateExpression, out RuleKey key);
-        PredicateRule<TEntity, TProperty> innerRule = new(predicate, key.RuleDefinition);
+        PredicateRule<TProperty> innerRule = new(predicate, key.RuleDefinition);
 
-        return new PropertyRule<TEntity, TProperty>(RuleType.Predicate, key, innerRule, isShortCircuit);
+        return new PropertyRule<TEntity, TProperty>(key, innerRule, isShortCircuit);
     }
 
     public static IPropertyRule<TEntity, TProperty> ForComparison<TEntity, TProperty>(
@@ -22,14 +22,22 @@ internal static class RuleFactory
         Func<TEntity, TProperty, bool> predicate = PredicateCache.GetOrAdd(predicateExpression, out RuleKey key);
         ComparisonRule<TEntity, TProperty> innerRule = new(predicate, key.RuleDefinition);
 
-        return new PropertyRule<TEntity, TProperty>(RuleType.Comparison, key, innerRule, isShortCircuit);
+        return new PropertyComparisonRule<TEntity, TProperty>(key, innerRule, isShortCircuit);
     }
 
     public static IPropertyRule<TEntity, TProperty> ForCustom<TEntity, TProperty>(
-        AbstractRule<TEntity, TProperty> customRule, bool isShortCircuit = false)
+        IValidationRule<TProperty> customRule, bool isShortCircuit = false)
     {
         return new PropertyRule<TEntity, TProperty>(
-            RuleType.Custom,
+            RuleKey.FromString(customRule.RuleName),
+            customRule,
+            isShortCircuit);
+    }
+
+    public static IPropertyRule<TEntity, TProperty> ForCustom<TEntity, TProperty>(
+        IValidationRule<TEntity, TProperty> customRule, bool isShortCircuit = false)
+    {
+        return new PropertyComparisonRule<TEntity, TProperty>(
             RuleKey.FromString(customRule.RuleName),
             customRule,
             isShortCircuit);

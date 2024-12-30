@@ -59,7 +59,7 @@ internal abstract class BaseValidator<TEntity, TPropertyValueFrom, TProperty> :
         }
     }
 
-    protected void ValidateCore(in ValidationRunContext<TEntity, TPropertyValueFrom> context, TProperty propertyValue)
+    protected void ValidateCore(ValidationContext<TEntity, TProperty> context)
     {
         if (NullOption == NullOptions.MustBeNull)
         {
@@ -69,11 +69,9 @@ internal abstract class BaseValidator<TEntity, TPropertyValueFrom, TProperty> :
 
         Collection<string> errorMessages = [];
 
-        ValidationData<TEntity, TProperty> data = new(context.PropertyName, context.EntityValue, propertyValue);
-
         for (var i = 0; i < Rules.Count; i++)
         {
-            if (Rules[i].Failed(data, out string? errorMsg))
+            if (Rules[i].Failed(context, out string? errorMsg))
             {
                 errorMessages.Add(errorMsg);
                 if (Rules[i].IsShortCircuit)
@@ -84,7 +82,7 @@ internal abstract class BaseValidator<TEntity, TPropertyValueFrom, TProperty> :
             }
         }
 
-        context.Result.AddPropertyErrors(context.DisplayName, errorMessages);
+        context.AttachErrors(errorMessages);
 
         if (_nestedValidators is not null)
         {
@@ -92,15 +90,15 @@ internal abstract class BaseValidator<TEntity, TPropertyValueFrom, TProperty> :
             {
                 if (_nestedValidators.TryGetValue(propName, out var validator))
                 {
-                    validator.Validate(context.Transform(propertyValue, propName));
+                    validator.Validate(context);
                 }
             }
         }
 
-        _collectionValidator?.Validate(context.Transform(propertyValue, Info.Name));
+        _collectionValidator?.Validate(context);
     }
 
-    public abstract void Validate(in ValidationRunContext<TEntity, TPropertyValueFrom> context);
+    public abstract void Validate(ValidationContext<TEntity, TPropertyValueFrom> context);
 
     public bool TryGetPropertyValidator(string propertyName, [NotNullWhen(true)] out IPropertyValidator<TEntity, TProperty>? propertyValidator)
     {

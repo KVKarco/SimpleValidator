@@ -6,7 +6,7 @@ public class Employee
 
     public required string FirstName { get; set; }
 
-    public string? LastName { get; set; }
+    public required string LastName { get; set; }
 
     public int? Age { get; set; }
 
@@ -15,6 +15,8 @@ public class Employee
     public required Info WorkInfo { get; set; }
 
     public Info? PersonalInfo { get; set; }
+
+    public string FullName => FirstName + " " + LastName;
 }
 
 public class Info

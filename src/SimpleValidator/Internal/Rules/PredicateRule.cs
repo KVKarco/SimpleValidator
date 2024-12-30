@@ -3,7 +3,7 @@
 /// <summary>
 /// Validation rule from predicate.
 /// </summary>
-internal sealed class PredicateRule<TEntity, TProperty> : IValidationRule<TEntity, TProperty>
+internal sealed class PredicateRule<TProperty> : IValidationRule<TProperty>
 {
     private readonly Predicate<TProperty> _predicate;
 
@@ -16,9 +16,9 @@ internal sealed class PredicateRule<TEntity, TProperty> : IValidationRule<TEntit
     public string RuleName { get; }
 
     /// <inheritdoc />
-    public bool FailsWhen(TEntity entityValue, TProperty propertyValue) => _predicate(propertyValue);
+    public bool FailsWhen(TProperty propertyValue) => _predicate(propertyValue);
 
     /// <inheritdoc />
-    public string GetDefaultMsgTemplate(ValidationData<TEntity, TProperty> msgData)
-        => $"{DefaultErrorMessages._genericErrorMsg} {msgData.PropertyName}.";
+    public string GetDefaultMsgTemplate(IValidationContext<TProperty> context)
+        => $"{DefaultErrorMessages.GenericErrorMsg} {context.PropertyName}.";
 }

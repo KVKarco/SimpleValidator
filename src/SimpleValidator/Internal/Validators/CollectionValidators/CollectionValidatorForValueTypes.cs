@@ -1,7 +1,4 @@
-﻿using SimpleValidator.Internal;
-using SimpleValidator.Internal.Validators;
-
-namespace SimpleValidator.Internal.Validators.CollectionValidators;
+﻿namespace SimpleValidator.Internal.Validators.CollectionValidators;
 
 internal sealed class CollectionValidatorForValueTypes<TEntity, TElementValuesFrom, TElement> :
     BaseValidator<TEntity, TElementValuesFrom, TElement>
@@ -13,13 +10,13 @@ internal sealed class CollectionValidatorForValueTypes<TEntity, TElementValuesFr
     {
     }
 
-    public override void Validate(in ValidationRunContext<TEntity, TElementValuesFrom> context)
+    public override void Validate(ValidationContext<TEntity, TElementValuesFrom> context)
     {
-        TElement[] elements = context.PropertyValueFrom.ToArray();
+        TElement[] elements = context.PropertyValue.ToArray();
 
         for (int i = 0; i < elements.Length; i++)
         {
-            ValidateCore(context.WithIndex(i), elements[i]);
+            ValidateCore(context.Transform(elements[i], i));
         }
     }
 }

@@ -31,19 +31,24 @@ internal interface IPropertyRule<TEntity, TProperty> : IPropertyRule
     /// <summary>
     /// Sets or changes rule default error message.
     /// </summary>
-    void SetErrorMsgFactory(Func<ValidationData<TEntity, TProperty>, string> errorMsgFactory);
+    void SetErrorMsgFactory(Func<IValidationContext<TEntity, TProperty>, string> factory);
+
+    /// <summary>
+    /// Sets or changes rule default error message.
+    /// </summary>
+    void SetErrorMsgFactory(Func<IValidationContext<TProperty>, string> factory);
 
     /// <summary>
     /// Determents if rule failed if so returns error message.
     /// </summary>
-    /// <param name="data">data for validation.</param>
+    /// <param name="context">data for validation.</param>
     /// <param name="errorMsg">error message that is returned if the rule failed.</param>
-    bool Failed(ValidationData<TEntity, TProperty> data, [NotNullWhen(true)] out string? errorMsg);
+    bool Failed(ValidationContext<TEntity, TProperty> context, [NotNullWhen(true)] out string? errorMsg);
 
     /// <summary>
     /// Transforms(updates) current rule to new form so can be copied in another validator.
     /// </summary>
     /// <typeparam name="TNewEntity">validator type where the current rule is copied to.</typeparam>
-    /// <param name="path">string missing selector path from the new validator to the old validator.</param>
-    IPropertyRule<TNewEntity, TProperty> Transform<TNewEntity>(string path);
+    /// <param name="missingPath">string missing selector path from the new validator to the old validator.</param>
+    IPropertyRule<TNewEntity, TProperty> Transform<TNewEntity>(string missingPath);
 }

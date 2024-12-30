@@ -128,7 +128,7 @@ public abstract class AbstractValidator<TEntity> : IValidatorManager<TEntity, TE
         {
             if (_propertyValidators.TryGetValue(propName, out var validator))
             {
-                ValidationRunContext<TEntity, TEntity> context = new(entity, entity, result, propName);
+                ValidationContext<TEntity, TEntity> context = new(entity, entity, result);
                 validator.Validate(context);
             }
         }

@@ -19,6 +19,6 @@ internal sealed class ComparisonRule<TEntity, TProperty> : IValidationRule<TEnti
     public bool FailsWhen(TEntity entityValue, TProperty propertyValue) => _predicate(entityValue, propertyValue);
 
     /// <inheritdoc />
-    public string GetDefaultMsgTemplate(ValidationData<TEntity, TProperty> msgData)
-        => $"{DefaultErrorMessages._genericErrorMsg} {msgData.PropertyName}.";
+    public string GetDefaultMsgTemplate(IValidationContext<TEntity, TProperty> context)
+        => $"{DefaultErrorMessages.GenericErrorMsg} {context.PropertyName}.";
 }

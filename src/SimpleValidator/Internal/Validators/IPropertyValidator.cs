@@ -1,6 +1,4 @@
-﻿using SimpleValidator.Internal;
-
-namespace SimpleValidator.Internal.Validators;
+﻿namespace SimpleValidator.Internal.Validators;
 
 /// <summary>
 /// Interface that represents how property is validated.
@@ -13,5 +11,5 @@ internal interface IPropertyValidator<TEntity, TPropertyValueFrom> : IValidatorI
     /// Method for running the validation chain for given property.
     /// </summary>
     /// <param name="context">data that validator needs to validate it self.</param>
-    void Validate(in ValidationRunContext<TEntity, TPropertyValueFrom> context);
+    void Validate(ValidationContext<TEntity, TPropertyValueFrom> context);
 }

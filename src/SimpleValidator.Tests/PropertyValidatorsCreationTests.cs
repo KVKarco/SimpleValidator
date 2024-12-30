@@ -24,7 +24,9 @@ public sealed class EmployeeValidatorWithNestedSelection : AbstractValidator<Emp
 {
     public EmployeeValidatorWithNestedSelection()
     {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
         ValidationsFor(x => x.PersonalInfo.Email);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
 }
 
@@ -43,7 +45,7 @@ public sealed class EmployeeValidatorWithFourPropertyValidators : AbstractValida
         ValidationsFor(x => x.CreatedAt)
             .FailsWhen(x => x > DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))).WithErrorMessage("CreatedAt date cant be in the future");
 
-        ValidationsFor(x => x.LastName, NullOptions.NotValidateWhenNull)
+        ValidationsFor(x => x.LastName)
             .FailsWhen(x => x.Length == 0).WithErrorMessage("LastName cant be empty")
             .FailsWhen(x => x.Length < 4 || x.Length > 7).WithErrorMessage("FistName must be more then 4 characters and less the 7");
     }

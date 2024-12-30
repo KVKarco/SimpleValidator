@@ -18,7 +18,7 @@ public interface IPropertyRulesBuilder<TEntity, TProperty>
     /// <exception cref="DuplicateRuleException">When duplicate rule is added to the rule set</exception>
     /// <exception cref="NullableMemberException">When predicateExpression contains nullable members.</exception>
     /// <returns>Error message builder.</returns>
-    IErrorMessageBuilder<TEntity, TProperty> FailsWhen(
+    IErrorMessageBuilderForPredicateRule<TEntity, TProperty> FailsWhen(
         Expression<Predicate<TProperty>> predicateExpression,
         bool toShortCircuit = false);
 
@@ -30,8 +30,18 @@ public interface IPropertyRulesBuilder<TEntity, TProperty>
     /// <exception cref="DuplicateRuleException">When duplicate rule is added to the rule set</exception>
     /// <exception cref="NullableMemberException">When predicateExpression contains nullable members.</exception>
     /// <returns>Error message builder.</returns>
-    IErrorMessageBuilder<TEntity, TProperty> FailsWhen(
+    IErrorMessageBuilderForComparisonRule<TEntity, TProperty> FailsWhen(
         Expression<Func<TEntity, TProperty, bool>> predicateExpression,
+        bool toShortCircuit = false);
+
+    /// <summary>
+    /// Adds custom rule to the rules collection.
+    /// </summary>
+    /// <param name="customRule">Custom AbstractRule.</param>
+    /// <param name="toShortCircuit">Specifies whether the validation chain stops when the rule fails.</param>
+    /// /// <exception cref="DuplicateRuleException">When duplicate rule is added to the rule set</exception>
+    IPropertyRulesBuilder<TEntity, TProperty> FailsWhen(
+        AbstractRule<TProperty> customRule,
         bool toShortCircuit = false);
 
     /// <summary>

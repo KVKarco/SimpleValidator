@@ -8,14 +8,25 @@
 public interface IErrorMessageBuilder<TEntity, TProperty>
 {
     /// <summary>
-    /// Attaches error message factory to the current rule.
-    /// </summary>
-    IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(Func<ValidationData<TEntity, TProperty>, string> errorMessageFactory);
-
-    /// <summary>
     /// Attaches error message to the current rule.
     /// </summary>
     IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(string errorMessage);
 }
 
-//TODO: Simplify errorMessageFactory.
+/// <inheritdoc/>
+public interface IErrorMessageBuilderForPredicateRule<TEntity, TProperty> : IErrorMessageBuilder<TEntity, TProperty>
+{
+    /// <summary>
+    /// Attaches error message factory to the current rule.
+    /// </summary>
+    IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(Func<IValidationContext<TProperty>, string> errorMessageFactory);
+}
+
+/// <inheritdoc/>
+public interface IErrorMessageBuilderForComparisonRule<TEntity, TProperty> : IErrorMessageBuilder<TEntity, TProperty>
+{
+    /// <summary>
+    /// Attaches error message factory to the current rule.
+    /// </summary>
+    IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(Func<IValidationContext<TEntity, TProperty>, string> errorMessageFactory);
+}

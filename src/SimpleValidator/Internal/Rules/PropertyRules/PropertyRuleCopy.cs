@@ -13,15 +13,14 @@ internal sealed class PropertyRuleCopy<TEntity, TBundToEntity, TProperty> :
     private readonly IValidationRule<TBundToEntity, TProperty> _innerRule;
 
     public PropertyRuleCopy(
-        RuleType type,
         in RuleKey key,
         IValidationRule<TBundToEntity, TProperty> innerRule,
         bool isShortCircuit,
         string pathToTBoundEntity,
         Func<TEntity, TBundToEntity> bundToValueGetter,
-        Func<ValidationData<TBundToEntity, TProperty>, string>? errorMsgFactory = null,
+        Func<IValidationContext<TBundToEntity, TProperty>, string>? errorMsgFactory = null,
         string? errorMsg = null)
-        : base(type, key, isShortCircuit)
+        : base(key, isShortCircuit)
     {
         _pathToTBoundEntity = pathToTBoundEntity;
         _bundToValueGetter = bundToValueGetter;
@@ -30,18 +29,19 @@ internal sealed class PropertyRuleCopy<TEntity, TBundToEntity, TProperty> :
         ErrorMsgFactory = errorMsgFactory;
     }
 
-    private Func<ValidationData<TBundToEntity, TProperty>, string>? ErrorMsgFactory { get; set; }
+    private Func<IValidationContext<TBundToEntity, TProperty>, string>? ErrorMsgFactory { get; set; }
 
-    public override bool Failed(ValidationData<TEntity, TProperty> data, [NotNullWhen(true)] out string? errorMsg)
+    public override bool Failed(ValidationContext<TEntity, TProperty> context, [NotNullWhen(true)] out string? errorMsg)
     {
-        TBundToEntity oldEntity = _bundToValueGetter(data.EntityValue);
+        TBundToEntity oldEntity = _bundToValueGetter(context.EntityValue);
 
-        if (_innerRule.FailsWhen(oldEntity, data.PropertyValue))
+        if (_innerRule.FailsWhen(oldEntity, context.PropertyValue))
         {
-            ValidationData<TBundToEntity, TProperty> bundData = new(data.PropertyName, oldEntity, data.PropertyValue);
+            var oldContext = context.Transform(oldEntity);
+
             errorMsg = ErrorMsg ?? (ErrorMsgFactory == null ?
-                _innerRule.GetDefaultMsgTemplate(bundData) :
-                ErrorMsgFactory(bundData));
+                _innerRule.GetDefaultMsgTemplate(oldContext) :
+                ErrorMsgFactory(oldContext));
             return true;
         }
 
@@ -49,20 +49,20 @@ internal sealed class PropertyRuleCopy<TEntity, TBundToEntity, TProperty> :
         return false;
     }
 
-    public override void SetErrorMsgFactory(Func<ValidationData<TEntity, TProperty>, string> factory)
-    {
-        // its not needed.
-    }
+    public override void SetErrorMsgFactory(Func<IValidationContext<TEntity, TProperty>, string> factory)
+        => throw new NotImplementedException();
 
-    public override IPropertyRule<TNewEntity, TProperty> Transform<TNewEntity>(string path)
+    public override void SetErrorMsgFactory(Func<IValidationContext<TProperty>, string> factory)
+        => throw new NotImplementedException();
+
+    public override IPropertyRule<TNewEntity, TProperty> Transform<TNewEntity>(string missingPath)
     {
-        string newPath = $"{path}.{_pathToTBoundEntity}";
-        SelectorKey selectorKey = new SelectorKey(typeof(TNewEntity), typeof(TBundToEntity), _pathToTBoundEntity);
-        Func<TNewEntity, TBundToEntity> bundToValueGetter = SelectorsCache.GetOrAdd<TNewEntity, TBundToEntity>(selectorKey, _pathToTBoundEntity);
-        RuleKey newKey = Type == RuleType.Comparison ? ComparisonDefinitionUpdater.UpdateDefinition(Key.RuleDefinition, _pathToTBoundEntity) : Key;
+        string newPath = $"{missingPath}.{_pathToTBoundEntity}";
+        SelectorKey selectorKey = new SelectorKey(typeof(TNewEntity), typeof(TBundToEntity), newPath);
+        Func<TNewEntity, TBundToEntity> bundToValueGetter = SelectorsCache.GetOrAdd<TNewEntity, TBundToEntity>(selectorKey, newPath);
+        RuleKey newKey = ComparisonDefinitionUpdater.UpdateDefinition(Key.RuleDefinition, missingPath);
 
         return new PropertyRuleCopy<TNewEntity, TBundToEntity, TProperty>(
-            Type,
             newKey,
             _innerRule,
             IsShortCircuit,

@@ -8,6 +8,23 @@ internal interface IValidationRule
     string RuleName { get; }
 }
 
+internal interface IValidationRule<TProperty> : IValidationRule
+{
+    /// <summary>
+    /// Method that determines when the rule failed.
+    /// </summary>
+    /// <param name="propertyValue">Property value that is being validated.</param>
+    /// <returns>bool</returns>
+    bool FailsWhen(TProperty propertyValue);
+
+    /// <summary>
+    /// Method that returns error message when rule failed.
+    /// </summary>
+    /// <param name="context">data context needed for validation.</param>
+    /// <returns>string</returns>
+    string GetDefaultMsgTemplate(IValidationContext<TProperty> context);
+}
+
 /// <summary>
 /// Represent rule for validating certain property.
 /// </summary>
@@ -26,7 +43,7 @@ internal interface IValidationRule<TEntity, TProperty> : IValidationRule
     /// <summary>
     /// Method that returns error message when rule failed.
     /// </summary>
-    /// <param name="msgData">data for the error message if needed.</param>
+    /// <param name="context">data context needed for validation.</param>
     /// <returns>string</returns>
-    string GetDefaultMsgTemplate(ValidationData<TEntity, TProperty> msgData);
+    string GetDefaultMsgTemplate(IValidationContext<TEntity, TProperty> context);
 }

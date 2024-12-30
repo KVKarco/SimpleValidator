@@ -8,7 +8,8 @@ namespace SimpleValidator.Internal.Builders;
 
 internal sealed class PropertyValidatorBuilder<TEntity, TPropertyValueFrom, TProperty> :
     IPropertyRulesBuilder<TEntity, TProperty>,
-    IErrorMessageBuilder<TEntity, TProperty>
+    IErrorMessageBuilderForPredicateRule<TEntity, TProperty>,
+    IErrorMessageBuilderForComparisonRule<TEntity, TProperty>
 {
     private readonly IValidatorManager<TEntity, TPropertyValueFrom> _mainValidator;
     private IPropertyValidatorManager<TEntity, TProperty> _validatorManager;
@@ -22,7 +23,7 @@ internal sealed class PropertyValidatorBuilder<TEntity, TPropertyValueFrom, TPro
         _validatorManager = propertyValidator;
     }
 
-    public IErrorMessageBuilder<TEntity, TProperty> FailsWhen(
+    public IErrorMessageBuilderForPredicateRule<TEntity, TProperty> FailsWhen(
         Expression<Predicate<TProperty>> predicateExpression,
         bool toShortCircuit = false)
     {
@@ -37,13 +38,28 @@ internal sealed class PropertyValidatorBuilder<TEntity, TPropertyValueFrom, TPro
         return this;
     }
 
-    public IErrorMessageBuilder<TEntity, TProperty> FailsWhen(
+    public IErrorMessageBuilderForComparisonRule<TEntity, TProperty> FailsWhen(
         Expression<Func<TEntity, TProperty, bool>> predicateExpression,
         bool toShortCircuit = false)
     {
         Guard.Against.InternalNull(predicateExpression);
 
         IPropertyRule<TEntity, TProperty> propertyRule = RuleFactory.ForComparison(predicateExpression, toShortCircuit);
+
+        _validatorManager.AddRule(propertyRule);
+
+        _currentRuleThatIsBuild = propertyRule;
+
+        return this;
+    }
+
+    public IPropertyRulesBuilder<TEntity, TProperty> FailsWhen(
+        AbstractRule<TProperty> customRule,
+        bool toShortCircuit = false)
+    {
+        Guard.Against.InternalNull(customRule);
+
+        IPropertyRule<TEntity, TProperty> propertyRule = RuleFactory.ForCustom<TEntity, TProperty>(customRule, toShortCircuit);
 
         _validatorManager.AddRule(propertyRule);
 
@@ -77,8 +93,19 @@ internal sealed class PropertyValidatorBuilder<TEntity, TPropertyValueFrom, TPro
         return this;
     }
 
+    public IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(string errorMessage)
+    {
+        Guard.Against.InternalNullOrWhiteSpace(errorMessage);
+
+        _currentRuleThatIsBuild?.SetErrorMsg(errorMessage);
+
+        _currentRuleThatIsBuild = null;
+
+        return this;
+    }
+
     public IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(
-        Func<ValidationData<TEntity, TProperty>, string> errorMessageFactory)
+        Func<IValidationContext<TProperty>, string> errorMessageFactory)
     {
         Guard.Against.InternalNull(errorMessageFactory);
 
@@ -89,11 +116,12 @@ internal sealed class PropertyValidatorBuilder<TEntity, TPropertyValueFrom, TPro
         return this;
     }
 
-    public IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(string errorMessage)
+    public IPropertyRulesBuilder<TEntity, TProperty> WithErrorMessage(
+        Func<IValidationContext<TEntity, TProperty>, string> errorMessageFactory)
     {
-        Guard.Against.InternalNullOrWhiteSpace(errorMessage);
+        Guard.Against.InternalNull(errorMessageFactory);
 
-        _currentRuleThatIsBuild?.SetErrorMsg(errorMessage);
+        _currentRuleThatIsBuild?.SetErrorMsgFactory(errorMessageFactory);
 
         _currentRuleThatIsBuild = null;
 

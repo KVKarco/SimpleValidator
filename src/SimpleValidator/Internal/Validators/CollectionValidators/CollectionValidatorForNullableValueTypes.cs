@@ -1,7 +1,4 @@
-﻿using SimpleValidator.Internal;
-using SimpleValidator.Internal.Validators;
-
-namespace SimpleValidator.Internal.Validators.CollectionValidators;
+﻿namespace SimpleValidator.Internal.Validators.CollectionValidators;
 
 internal sealed class CollectionValidatorForNullableValueTypes<TEntity, TElementValuesFrom, TElement> :
     BaseValidator<TEntity, TElementValuesFrom, TElement>
@@ -13,30 +10,28 @@ internal sealed class CollectionValidatorForNullableValueTypes<TEntity, TElement
     {
     }
 
-    public override void Validate(in ValidationRunContext<TEntity, TElementValuesFrom> context)
+    public override void Validate(ValidationContext<TEntity, TElementValuesFrom> context)
     {
-        TElement?[] elements = context.PropertyValueFrom.ToArray();
+        TElement?[] elements = context.PropertyValue.ToArray();
 
         for (int i = 0; i < elements.Length; i++)
         {
-            var elementContext = context.WithIndex(i);
-
             TElement? element = elements[i];
             if (!element.HasValue)
             {
                 if (!Info.IsNullable)
                 {
-                    elementContext.AttachNullWorming();
+                    context.AttachNullWorming($"{Info.Name}[{i}]");
                 }
 
                 if (NullOption == NullOptions.FailsWhenNull)
                 {
-                    elementContext.AttachNullError();
+                    context.AttachNullError($"{Info.Name}[{i}]");
                 }
             }
             else
             {
-                ValidateCore(elementContext, element.Value);
+                ValidateCore(context.Transform(element.Value, i));
             }
         }
     }

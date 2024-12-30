@@ -1,7 +1,4 @@
-﻿using SimpleValidator.Internal;
-using SimpleValidator.Internal.Validators;
-
-namespace SimpleValidator.Internal.Validators.PropertyValidators;
+﻿namespace SimpleValidator.Internal.Validators.PropertyValidators;
 
 internal sealed class PropertyValidatorForReferenceType<TEntity, TPropertyValueFrom, TProperty> :
     BaseValidator<TEntity, TPropertyValueFrom, TProperty>
@@ -19,25 +16,25 @@ internal sealed class PropertyValidatorForReferenceType<TEntity, TPropertyValueF
         _valueGetter = propertyValueGetter;
     }
 
-    public override void Validate(in ValidationRunContext<TEntity, TPropertyValueFrom> context)
+    public override void Validate(ValidationContext<TEntity, TPropertyValueFrom> context)
     {
-        TProperty? propertyValue = _valueGetter(context.PropertyValueFrom);
+        TProperty? propertyValue = _valueGetter(context.PropertyValue);
 
         if (propertyValue is null)
         {
             if (!Info.IsNullable)
             {
-                context.AttachNullWorming();
+                context.AttachNullWorming(Info.Name);
             }
 
             if (NullOption == NullOptions.FailsWhenNull)
             {
-                context.AttachNullError();
+                context.AttachNullError(Info.Name);
             }
         }
         else
         {
-            ValidateCore(context, propertyValue);
+            ValidateCore(context.Transform(propertyValue, Info.Name));
         }
     }
 }

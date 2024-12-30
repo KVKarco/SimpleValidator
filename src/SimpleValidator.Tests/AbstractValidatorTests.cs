@@ -14,6 +14,7 @@ public class AbstractValidatorTests
         {
             Id = 1,
             FirstName = "testName",
+            LastName = "testLastName",
             Age = 15,
             CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
             WorkInfo = new()
